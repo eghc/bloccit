@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
         key: "id",
         as: "topicId",
       }
-  }, {});
+  }}, {});
   Rule.associate = function(models) {
     // associations can be defined here
     Rule.belongsTo(models.Topic, {
