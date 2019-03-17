@@ -19,6 +19,14 @@
           <label for="description">Description</label>
           <textarea rows="4" class="form-control" name="description" placeholder="Enter Description"></textarea>
         </div>
+        <div class="form-group">
+          <label for="exampleFormControlSelect1">Flairs</label>
+          <select class="form-control" name="flairId" >
+              <% flairs.forEach((flair) => { %>
+                <option value="<%= flair.id %>"><%= flair.name %></option>
+              <% }) %>
+          </select>
+        </div>
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
 

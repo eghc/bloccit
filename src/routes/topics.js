@@ -17,4 +17,5 @@ router.get("/topics/new", topicController.new);
 
  router.post("/topics/:id/update", topicController.update);
 
+
 module.exports = router;

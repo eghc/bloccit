@@ -7,15 +7,15 @@
     <main class="container">
       <% include ../static/partials/navbar.ejs %>
 
-      <h1>Topics</h1>
-      <a class="btn btn-primary" href="/topics/new" role="button">New</a>
+      <h1>Flairs</h1>
+      <a class="btn btn-primary" href="/flairs/new" role="button">New</a>
 
       <ul class="list-group">
 <!-- #1 -->
-        <% topics.forEach((topic) => { %>
+        <% flairs.forEach((flair) => { %>
 <!-- #2 -->
           <li class="list-group-item">
-            <a href="/topics/<%= topic.id %>"> <%= topic.title %> </a>
+            <a style="color:<%= flair.color %>" href="/flairs/<%= flair.id %>"> <%= flair.name %> </a>
           </li>
         <% }) %>
       </ul>
