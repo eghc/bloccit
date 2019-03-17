@@ -19,7 +19,8 @@ module.exports = {
   addTopic(newTopic, callback){
     return Topic.create({
       title: newTopic.title,
-      description: newTopic.description
+      description: newTopic.description,
+      flairId: newTopic.flairId
     })
     .then((topic) => {
       callback(null, topic);

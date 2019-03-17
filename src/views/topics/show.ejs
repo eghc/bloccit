@@ -17,6 +17,10 @@
       </form>
 
       <p><%= topic.description %></p>
+      <%if (flair !== null) { %>
+        <a href="/flairs/<%= flair.id %>" style="color:<%= flair.color %>"><%= flair.name %></a>
+      <% } %>
+
 
       <hr>
 
