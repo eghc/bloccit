@@ -12,7 +12,14 @@ module.exports = {
         }
       });
   },
-  new(req, res, next){
+   new(req, res, next){
+
+    // flairController.getAll.then( (flairs) =>{
+    //   console.log(flairs);
+    // });
+    //console.log(flairs);
+    //res.render("topics/new", {flairs});
+
     //console.log();
     http.get(req.protocol+"://"+req.get('host')+"/flairs/get/all", (resp) => {
       let data = '';

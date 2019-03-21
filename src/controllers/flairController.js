@@ -74,10 +74,12 @@ module.exports = {
       if(err){
         //console.log(err);
           res.send(err);
+          //return err;
         } else {
+          //console.log(flairs);
+          //return flairs;
           res.send(flairs);
           res.end();
-          //return newFlairs;
         }
       });
 
