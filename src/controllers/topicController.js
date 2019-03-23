@@ -1,6 +1,9 @@
 const topicQueries = require("../db/queries.topics.js");
 const http = require("http");
 
+const Authorizer = require("../policies/topic");
+
+
 module.exports = {
   index(req, res, next){
     topicQueries.getAllTopics((err, topics) => {
@@ -13,47 +16,50 @@ module.exports = {
       });
   },
    new(req, res, next){
+     const authorized = new Authorizer(req.user).new();
 
-    // flairController.getAll.then( (flairs) =>{
-    //   console.log(flairs);
-    // });
-    //console.log(flairs);
-    //res.render("topics/new", {flairs});
+     if(authorized) {
+       http.get(req.protocol+"://"+req.get('host')+"/flairs/get/all", (resp) => {
+         let data = '';
 
-    //console.log();
-    http.get(req.protocol+"://"+req.get('host')+"/flairs/get/all", (resp) => {
-      let data = '';
+         // A chunk of data has been recieved.
+         resp.on('data', (chunk) => {
+           data += chunk;
+         });
+         //console.log(data);
 
-      // A chunk of data has been recieved.
-      resp.on('data', (chunk) => {
-        data += chunk;
-      });
-      //console.log(data);
-
-      // The whole response has been received. Print out the result.
-      resp.on('end', () => {
-          let flairs = JSON.parse(data);
-          //console.log(flairs);
-          res.render("topics/new", {flairs});
-      });
-    });
-    //console.log(flairs);
-
+         // The whole response has been received. Print out the result.
+         resp.on('end', () => {
+             let flairs = JSON.parse(data);
+             //console.log(flairs);
+             res.render("topics/new", {flairs});
+         });
+       });
+     } else {
+       req.flash("notice", "You are not authorized to do that.");
+       res.redirect("/topics");
+     }
 
   },
   create(req, res, next){
-    let newTopic = {
-      title: req.body.title,
-      description: req.body.description,
-      flairId: req.body.flairId
-    };
-    topicQueries.addTopic(newTopic, (err, topic) => {
-        if(err){
-          res.redirect(500, "/topics/new");
-        } else {
-          res.redirect(303, `/topics/${topic.id}`);
-        }
+    const authorized = new Authorizer(req.user).create();
+    if(authorized){
+      let newTopic = {
+        title: req.body.title,
+        description: req.body.description,
+        flairId: req.body.flairId
+      };
+      topicQueries.addTopic(newTopic, (err, topic) => {
+          if(err){
+            res.redirect(500, "/topics/new");
+          } else {
+            res.redirect(303, `/topics/${topic.id}`);
+          }
       });
+    }else{
+      req.flash("notice", "You are not authorized to do that.");
+      res.redirect("/topics");
+    }
   },
   show(req, res, next){
 
@@ -84,7 +90,7 @@ module.exports = {
      });
    },
   destroy(req, res, next){
-    topicQueries.deleteTopic(req.params.id, (err, topic) => {
+    topicQueries.deleteTopic(req, (err, topic) => {
       if(err){
         res.redirect(500, `/topics/${topic.id}`)
       } else {
@@ -97,6 +103,8 @@ module.exports = {
       if(err || topic == null){
         res.redirect(404, "/");
       } else {
+        const authorized = new Authorizer(req.user, topic).edit();
+        if(authorized){
           http.get(req.protocol+"://"+req.get('host')+"/flairs/get/all", (resp) => {
             let data = '';
             // A chunk of data has been recieved.
@@ -117,18 +125,16 @@ module.exports = {
 
               });
           });
+        }else{
+          req.flash("You are not authorized to do that.");
+          res.redirect(`/topics/${req.params.id}`);
+        }
       }
     });
   },
   update(req, res, next){
-    let newTopic = {
-      title: req.body.title,
-      description: req.body.description,
-      flairId: req.params.flairId === null ? null : req.params.flairId
-    }
-
   //#1
-    topicQueries.updateTopic(req.params.id, req.body, (err, topic) => {
+    topicQueries.updateTopic(req, req.body, (err, topic) => {
       if(err || topic == null){
         res.redirect(404, `/topics/${req.params.id}/edit`);
       } else {
