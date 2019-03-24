@@ -222,7 +222,7 @@ describe("routes : topics", () => {
   });
 
 
-  describe("member user performing CRUD actions for Topic", () => {
+describe("member user performing CRUD actions for Topic", () => {
 
 // #4: Send mock request and authenticate as a member user
   beforeEach((done) => {
