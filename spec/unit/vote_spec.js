@@ -112,7 +112,24 @@ describe("Vote", () => {
       });
     });
 
+    it("should not create a vote with a value more than 1", (done) => {
+      Vote.create({
+        value: 2,
+        postId: this.post.id,
+        userId: this.user.id
+      })
+      .then((vote) => {
+        // expect(vote.value).toBe(0);
+        // expect(vote.postId).toBe(this.post.id);
+        // expect(vote.userId).toBe(this.user.id);
+        done();
 
+      })
+      .catch((err) => {
+        expect(err).not.toBeNull();
+        done();
+      });
+    });
 
   // #6
     it("should not create a vote without assigned post or user", (done) => {
@@ -135,6 +152,59 @@ describe("Vote", () => {
         done();
 
       })
+    });
+
+    it("should not allow more than one vote on a post from a user", (done) => {
+
+      Vote.create({           // create a vote on `this.post`
+        value: -1,
+        postId: this.post.id,
+        userId: this.user.id
+      })
+      .then((vote) => {
+        this.vote = vote;     // store it
+
+        Post.create({         // create a new post
+          title: "Dress code on Proxima b",
+          body: "Spacesuit, space helmet, space boots, and space gloves",
+          topicId: this.topic.id,
+          userId: this.user.id
+        })
+        .then((newPost) => {
+
+          expect(this.vote.postId).toBe(this.post.id); // check vote not associated with newPost
+
+          this.vote.setPost(newPost)              // update post reference for vote
+          .then((vote) => {
+
+            expect(vote.postId).toBe(newPost.id); // ensure it was updated
+            done();
+
+          });
+
+          Vote.create({           // create a vote on `this.post`
+            value: -1,
+            postId: this.post.id,
+            userId: this.user.id
+          })
+          .then((vote) => {
+            this.vote.setPost(newPost)
+            .then((vote)=>{
+              done();
+            })
+            .catch((err) => {
+              expect(err).not.toBeNull();
+              done();
+            });
+          });
+
+
+        })
+        .catch((err) => {
+          console.log(err);
+          done();
+        });
+      });
     });
 
   });
@@ -234,6 +304,7 @@ describe("Vote", () => {
         });
       });
     });
+
 
   });
 

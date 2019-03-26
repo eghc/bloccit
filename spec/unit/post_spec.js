@@ -2,6 +2,7 @@ const sequelize = require("../../src/db/models/index").sequelize;
 const Topic = require("../../src/db/models").Topic;
 const Post = require("../../src/db/models").Post;
 const User = require("../../src/db/models").User;
+const Vote = require("../../src/db/models").Vote;
 
 describe("Post", () => {
 
@@ -9,6 +10,7 @@ describe("Post", () => {
     this.topic;
     this.post;
     this.user;
+    this.vote;
 
     sequelize.sync({force: true}).then((res) => {
 
@@ -163,6 +165,169 @@ describe("Post", () => {
 
     });
 
+  });
+
+  describe("#getPoints()", () => {
+
+    it("should return the points with the associated post", (done) => {
+
+      Post.create({
+        title: "Pros of Cryosleep during the long journey",
+        body: "1. Not having to answer the 'are we there yet?' question.",
+        topicId: this.topic.id,
+        userId: this.user.id
+      })
+      .then((post) => {
+        this.post = post;
+        Vote.createVote({
+          postId: this.post.id,
+          userId: this.user.id
+        }).then((vote) =>{
+
+          expect(this.post.getPoints).toBe(1);
+          done();
+
+        }).catch((err) => {
+          console.log(err);
+          done();
+        });
+
+      })
+      .catch((err) => {
+        console.log(err);
+        done();
+      });
+
+    });
+
+  });
+
+  describe("#hasUpvoteFor()", () =>{
+    it("should return true since the userId upvoted", (done) => {
+
+      Post.create({
+        title: "Pros of Cryosleep during the long journey",
+        body: "1. Not having to answer the 'are we there yet?' question.",
+        topicId: this.topic.id,
+        userId: this.user.id
+      })
+      .then((post) => {
+        this.post = post;
+        Vote.createVote({
+          value: 1,
+          postId: this.post.id,
+          userId: this.user.id
+        }).then((vote) =>{
+
+          expect(this.post.hasUpvoteFor(this.user.id)).toBe(true);
+          done();
+
+        }).catch((err) => {
+          console.log(err);
+          done();
+        });
+
+      })
+      .catch((err) => {
+        console.log(err);
+        done();
+      });
+    });
+
+    it("should return false since the userId downvoted", (done) => {
+
+      Post.create({
+        title: "Pros of Cryosleep during the long journey",
+        body: "1. Not having to answer the 'are we there yet?' question.",
+        topicId: this.topic.id,
+        userId: this.user.id
+      })
+      .then((post) => {
+        this.post = post;
+        Vote.createVote({
+          value: -1,
+          postId: this.post.id,
+          userId: this.user.id
+        }).then((vote) =>{
+
+          expect(this.post.hasUpvoteFor(this.user.id)).toBe(false);
+          done();
+
+        }).catch((err) => {
+          console.log(err);
+          done();
+        });
+
+      })
+      .catch((err) => {
+        console.log(err);
+        done();
+      });
+    });
+  });
+
+  describe("#hasDownvoteFor()", () =>{
+    it("should return true since the userId downvoted", (done) => {
+
+      Post.create({
+        title: "Pros of Cryosleep during the long journey",
+        body: "1. Not having to answer the 'are we there yet?' question.",
+        topicId: this.topic.id,
+        userId: this.user.id
+      })
+      .then((post) => {
+        this.post = post;
+        Vote.createVote({
+          value: -1,
+          postId: this.post.id,
+          userId: this.user.id
+        }).then((vote) =>{
+
+          expect(this.post.hasDownvoteFor(this.user.id)).toBe(true);
+          done();
+
+        }).catch((err) => {
+          console.log(err);
+          done();
+        });
+
+      })
+      .catch((err) => {
+        console.log(err);
+        done();
+      });
+    });
+
+    it("should return false since the userId upvoted", (done) => {
+
+      Post.create({
+        title: "Pros of Cryosleep during the long journey",
+        body: "1. Not having to answer the 'are we there yet?' question.",
+        topicId: this.topic.id,
+        userId: this.user.id
+      })
+      .then((post) => {
+        this.post = post;
+        Vote.createVote({
+          value: 1,
+          postId: this.post.id,
+          userId: this.user.id
+        }).then((vote) =>{
+
+          expect(this.post.hasUpvoteFor(this.user.id)).toBe(false);
+          done();
+
+        }).catch((err) => {
+          console.log(err);
+          done();
+        });
+
+      })
+      .catch((err) => {
+        console.log(err);
+        done();
+      });
+    });
   });
 
 });
